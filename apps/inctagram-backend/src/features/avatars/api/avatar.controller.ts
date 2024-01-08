@@ -43,7 +43,9 @@ export class AvatarController extends ExceptionAndResponseHelper {
   @ApiBearerAuth()
   @Get()
   @UseGuards(JwtAccessAuthGuard)
-  async getAvatar(@CurrentUserId() userId: number): Promise<string> {
+  async getAvatar(
+    @CurrentUserId() userId: number,
+  ): Promise<{ avatarUrl: string }> {
     const avatarResult = await this.avatarRepository.findAvatar(userId);
 
     return this.sendExceptionOrResponse(avatarResult);

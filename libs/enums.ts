@@ -20,3 +20,8 @@ export enum ApproachType {
 export enum Services {
   FileService = 'FILE_SERVICE',
 }
+
+export enum SortDirection {
+  asc = 'asc',
+  desc = 'desc',
+}

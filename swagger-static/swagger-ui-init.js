@@ -74,6 +74,9 @@ window.onload = function() {
             }
           ],
           "responses": {
+            "200": {
+              "description": ""
+            },
             "204": {
               "description": "Email was verified. Account was activated"
             },
@@ -213,6 +216,9 @@ window.onload = function() {
             }
           ],
           "responses": {
+            "200": {
+              "description": ""
+            },
             "204": {
               "description": "Email was verified."
             },
@@ -559,6 +565,84 @@ window.onload = function() {
           ]
         }
       },
+      "/api/v1/public/profile/{userName}": {
+        "get": {
+          "operationId": "getPublicProfile",
+          "summary": "Get public profile",
+          "description": "This endpoint is used to getting public profile by link",
+          "parameters": [
+            {
+              "name": "userName",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "sortBy",
+              "required": false,
+              "in": "query",
+              "schema": {
+                "default": "createdAt",
+                "type": "string"
+              }
+            },
+            {
+              "name": "sortDirection",
+              "required": false,
+              "in": "query",
+              "schema": {
+                "default": "desc",
+                "enum": [
+                  "asc",
+                  "desc"
+                ],
+                "type": "string"
+              }
+            },
+            {
+              "name": "currentPage",
+              "required": false,
+              "in": "query",
+              "schema": {
+                "default": 1,
+                "type": "number"
+              }
+            },
+            {
+              "name": "pageSize",
+              "required": false,
+              "in": "query",
+              "schema": {
+                "default": 8,
+                "type": "number"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PublicViewProfileModel"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": ""
+            },
+            "429": {
+              "description": "More than 5 attempts from one IP-address during 10 seconds"
+            }
+          },
+          "tags": [
+            "Public"
+          ]
+        }
+      },
       "/api/v1/avatar": {
         "get": {
           "operationId": "getAvatar",
@@ -566,7 +650,14 @@ window.onload = function() {
           "parameters": [],
           "responses": {
             "200": {
-              "description": ""
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              }
             }
           },
           "tags": [
@@ -620,6 +711,9 @@ window.onload = function() {
             }
           },
           "responses": {
+            "200": {
+              "description": ""
+            },
             "204": {
               "description": "Img is accepted."
             }
@@ -631,6 +725,312 @@ window.onload = function() {
             {
               "bearer": []
             }
+          ]
+        }
+      },
+      "/api/v1/post": {
+        "get": {
+          "operationId": "getMyPosts",
+          "summary": "Get my posts",
+          "description": "This endpoint is used to getting my posts.",
+          "parameters": [
+            {
+              "name": "sortBy",
+              "required": false,
+              "in": "query",
+              "schema": {
+                "default": "createdAt",
+                "type": "string"
+              }
+            },
+            {
+              "name": "sortDirection",
+              "required": false,
+              "in": "query",
+              "schema": {
+                "default": "desc",
+                "enum": [
+                  "asc",
+                  "desc"
+                ],
+                "type": "string"
+              }
+            },
+            {
+              "name": "currentPage",
+              "required": false,
+              "in": "query",
+              "schema": {
+                "default": 1,
+                "type": "number"
+              }
+            },
+            {
+              "name": "pageSize",
+              "required": false,
+              "in": "query",
+              "schema": {
+                "default": 8,
+                "type": "number"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PaginationViewModel"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "429": {
+              "description": "More than 5 attempts from one IP-address during 10 seconds"
+            }
+          },
+          "tags": [
+            "Post"
+          ],
+          "security": [
+            {
+              "bearer": []
+            }
+          ]
+        },
+        "post": {
+          "operationId": "createPost",
+          "summary": "Create post",
+          "description": "This endpoint is used to create new post.",
+          "parameters": [],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatePostModel"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ViewPostModel"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "If the inputModel has incorrect values.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "example": {
+                      "errorsMessages": [
+                        {
+                          "message": "string",
+                          "field": "string"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "429": {
+              "description": "More than 5 attempts from one IP-address during 10 seconds"
+            }
+          },
+          "tags": [
+            "Post"
+          ],
+          "security": [
+            {
+              "bearer": []
+            }
+          ]
+        }
+      },
+      "/api/v1/post/{id}": {
+        "put": {
+          "operationId": "updatePost",
+          "summary": "Update post",
+          "description": "This endpoint is used to update exists post.",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdatePostModel"
+                }
+              }
+            }
+          },
+          "responses": {
+            "204": {
+              "description": "Input data is accepted. Post have updated"
+            },
+            "400": {
+              "description": "If the inputModel has incorrect values.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "example": {
+                      "errorsMessages": [
+                        {
+                          "message": "string",
+                          "field": "string"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "403": {
+              "description": "It is not your post"
+            },
+            "404": {
+              "description": "Post not found"
+            },
+            "429": {
+              "description": "More than 5 attempts from one IP-address during 10 seconds"
+            }
+          },
+          "tags": [
+            "Post"
+          ],
+          "security": [
+            {
+              "bearer": []
+            }
+          ]
+        },
+        "delete": {
+          "operationId": "deletePost",
+          "summary": "Delete post",
+          "description": "This endpoint is used to delete exists post.",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": "Post have deleted"
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "403": {
+              "description": "It is not your post"
+            },
+            "404": {
+              "description": "Post not found"
+            },
+            "429": {
+              "description": "More than 5 attempts from one IP-address during 10 seconds"
+            }
+          },
+          "tags": [
+            "Post"
+          ],
+          "security": [
+            {
+              "bearer": []
+            }
+          ]
+        }
+      },
+      "/api/v1/public/posts": {
+        "get": {
+          "operationId": "getPublicPosts",
+          "summary": "Get public posts",
+          "description": "This endpoint is used to viewing public posts on the main page",
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PublicViewMainPageModel"
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "Public"
+          ]
+        }
+      },
+      "/api/v1/public/posts/{id}": {
+        "get": {
+          "operationId": "getPublicPost",
+          "summary": "Get public post by id",
+          "description": "This endpoint is used to viewing public post by the link",
+          "parameters": [
+            {
+              "name": "id",
+              "required": true,
+              "in": "path",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PublicViewPostModel"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": ""
+            },
+            "429": {
+              "description": "More than 5 attempts from one IP-address during 10 seconds"
+            }
+          },
+          "tags": [
+            "Public"
           ]
         }
       }
@@ -817,6 +1217,156 @@ window.onload = function() {
             "city",
             "country",
             "aboutMe"
+          ]
+        },
+        "ViewPostModel": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "createdAt": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "description",
+            "createdAt"
+          ]
+        },
+        "PaginationViewModel": {
+          "type": "object",
+          "properties": {
+            "pagesCount": {
+              "type": "number"
+            },
+            "currentPage": {
+              "type": "number"
+            },
+            "pageSize": {
+              "type": "number"
+            },
+            "itemsCount": {
+              "type": "number"
+            },
+            "items": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/ViewPostModel"
+              }
+            }
+          },
+          "required": [
+            "pagesCount",
+            "currentPage",
+            "pageSize",
+            "itemsCount",
+            "items"
+          ]
+        },
+        "PublicViewProfileModel": {
+          "type": "object",
+          "properties": {
+            "userName": {
+              "type": "string"
+            },
+            "following": {
+              "type": "number"
+            },
+            "followers": {
+              "type": "number"
+            },
+            "postsCount": {
+              "type": "number"
+            },
+            "aboutMe": {
+              "type": "string"
+            },
+            "posts": {
+              "$ref": "#/components/schemas/PaginationViewModel"
+            }
+          },
+          "required": [
+            "userName",
+            "following",
+            "followers",
+            "postsCount",
+            "aboutMe",
+            "posts"
+          ]
+        },
+        "CreatePostModel": {
+          "type": "object",
+          "properties": {
+            "description": {
+              "type": "string",
+              "minimum": 0,
+              "maximum": 500
+            }
+          },
+          "required": [
+            "description"
+          ]
+        },
+        "UpdatePostModel": {
+          "type": "object",
+          "properties": {
+            "description": {
+              "type": "string",
+              "minimum": 0,
+              "maximum": 500
+            }
+          },
+          "required": [
+            "description"
+          ]
+        },
+        "PublicViewPostModel": {
+          "type": "object",
+          "properties": {
+            "userName": {
+              "type": "string"
+            },
+            "photoUrl": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "comments": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "userName",
+            "photoUrl",
+            "description",
+            "comments"
+          ]
+        },
+        "PublicViewMainPageModel": {
+          "type": "object",
+          "properties": {
+            "usersCount": {
+              "type": "number"
+            },
+            "lastPosts": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/PublicViewPostModel"
+              }
+            }
+          },
+          "required": [
+            "usersCount",
+            "lastPosts"
           ]
         }
       }

@@ -19,7 +19,6 @@ export class UpdateProfileModel {
   @IsString()
   @Transform(({ value }) => value.trim())
   @Length(6, 30)
-  // @IsUserNameAvailable() // декоратор валидации уникальности userName - как передать сюда id пользователя?
   userName: string;
   @ApiProperty({
     minimum: 1,
@@ -43,12 +42,6 @@ export class UpdateProfileModel {
   lastName: string;
   @ApiProperty()
   @IsOptional()
-  // @Transform(({ value }) => {
-  //   console.log({ v: value });
-  //   console.log({ v_t: value.trim() });
-  //   console.log({ v_r: value.trim() !== '' ? value : null });
-  //   return value.trim() !== '' ? value : null;
-  // })
   @Transform(({ value }) => value && new Date(value))
   @IsDate()
   dateOfBirth: string;

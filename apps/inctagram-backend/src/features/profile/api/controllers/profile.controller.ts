@@ -17,17 +17,17 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ThrottlerGuard } from '@nestjs/throttler';
-import { ExceptionAndResponseHelper } from '../../../../../../libs/core/exceptionAndResponse';
+import { ExceptionAndResponseHelper } from '../../../../../../../libs/core/exceptionAndResponse';
 import { CommandBus } from '@nestjs/cqrs';
-import { ApproachType, InternalCode } from '../../../../../../libs/enums';
-import { JwtAccessAuthGuard } from '../../auth/guards/jwt-access-auth.guard';
-import { ProfileQueryRepository } from '../infrastructure/profile.query.repository';
-import { CurrentUserId } from '../../infrastructure/decorators/params/current-user-id.decorator';
-import { UpdateProfileModel } from './models/update.profile.model';
-import { UpdateProfileCommand } from '../application/use.cases/update.profile.use.case';
-import { ViewProfileModel } from './models/view.profile.model';
-import { AvatarQueryRepository } from '../../avatars/infrastructure/avatar-query.repository';
-import { ResultDTO } from '../../../../../../libs/dtos/resultDTO';
+import { ApproachType, InternalCode } from '../../../../../../../libs/enums';
+import { JwtAccessAuthGuard } from '../../../auth/guards/jwt-access-auth.guard';
+import { ProfileQueryRepository } from '../../infrastructure/profile.query.repository';
+import { CurrentUserId } from '../../../infrastructure/decorators/params/current-user-id.decorator';
+import { UpdateProfileModel } from '../models/update.profile.model';
+import { UpdateProfileCommand } from '../../application/use.cases/update.profile.use.case';
+import { ViewProfileModel } from '../models/view.profile.model';
+import { AvatarQueryRepository } from '../../../avatars/infrastructure/avatar-query.repository';
+import { ResultDTO } from '../../../../../../../libs/dtos/resultDTO';
 
 @ApiTags('Profile')
 @Controller('profile')
@@ -63,7 +63,7 @@ export class ProfileController extends ExceptionAndResponseHelper {
 
     const avatarResult = await this.avatarQueryRepository.findAvatar(userId);
 
-    profile.avatarUrl = avatarResult.payload;
+    profile.avatarUrl = avatarResult.payload?.avatarUrl ?? null;
 
     return this.sendExceptionOrResponse(
       new ResultDTO(InternalCode.Success, profile),
@@ -87,7 +87,7 @@ export class ProfileController extends ExceptionAndResponseHelper {
   async updateProfile(
     @CurrentUserId() userId: number,
     @Body() inputModel: UpdateProfileModel,
-  ) {
+  ): Promise<void> {
     const updateProfileResult = await this.commandBus.execute(
       new UpdateProfileCommand(userId, inputModel),
     );

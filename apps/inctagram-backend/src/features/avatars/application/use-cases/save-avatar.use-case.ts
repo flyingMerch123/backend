@@ -1,4 +1,3 @@
-import { Express } from 'express';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { AvatarRepository } from '../../infrastructure/avatar.repository';
 import { ResultDTO } from '../../../../../../../libs/dtos/resultDTO';
