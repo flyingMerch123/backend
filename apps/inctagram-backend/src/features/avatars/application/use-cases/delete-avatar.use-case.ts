@@ -26,16 +26,17 @@ export class DeleteAvatarUseCase
     if (deleteAvatarResult.hasError())
       return deleteAvatarResult as ResultDTO<null>;
 
-    const deleteFileResult = await lastValueFrom(
-      this.client.send(
-        { cmd: 'delete_avatar' },
-        { fileId: deleteAvatarResult.payload.fileId },
-      ),
-    );
+    try {
+      await lastValueFrom(
+        this.client.send(
+          { cmd: 'delete_avatar' },
+          { fileId: deleteAvatarResult.payload.fileId },
+        ),
+      );
 
-    if (deleteFileResult.code !== InternalCode.Success)
+      return new ResultDTO(InternalCode.Success);
+    } catch (e) {
       return new ResultDTO(InternalCode.Internal_Server);
-
-    return new ResultDTO(InternalCode.Success);
+    }
   }
 }

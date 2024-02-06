@@ -16,6 +16,12 @@ export class UsersQueryRepository {
     return new ResultDTO(InternalCode.Success, this._mapDbToView(user));
   }
 
+  async getUsersCount(): Promise<ResultDTO<number>> {
+    const usersCount = await this.prisma.user.count();
+
+    return new ResultDTO(InternalCode.Success, usersCount);
+  }
+
   _mapDbToView(user: User): ViewUserModel {
     return {
       email: user.email,

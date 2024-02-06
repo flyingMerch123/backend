@@ -40,21 +40,37 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { CreateProfileUseCase } from './features/profile/application/use.cases/create.profile.use.case';
 import { ProfileRepository } from './features/profile/infrastructure/profile.repository';
 import { ProfileQueryRepository } from './features/profile/infrastructure/profile.query.repository';
-import { ProfileController } from './features/profile/api/profile.controller';
+import { ProfileController } from './features/profile/api/controllers/profile.controller';
 import { UpdateProfileUseCase } from './features/profile/application/use.cases/update.profile.use.case';
 import { AvatarController } from './features/avatars/api/avatar.controller';
 import { ClientProxyFactory, Transport } from '@nestjs/microservices';
 import { Services } from '../../../libs/enums';
+import { PostRepository } from './features/post/infrastructure/post.repository';
+import { PostQueryRepository } from './features/post/infrastructure/post.query.repository';
+import { CreatePostUseCase } from './features/post/application/create.post.use.case';
+import { UpdatePostUseCase } from './features/post/application/update.post.use.case';
+import { DeletePostUseCase } from './features/post/application/delete.post.use.case';
+import { PostController } from './features/post/api/controllers/post.controller';
 import { SaveAvatarUseCase } from './features/avatars/application/use-cases/save-avatar.use-case';
 import { AvatarRepository } from './features/avatars/infrastructure/avatar.repository';
 import { AvatarQueryRepository } from './features/avatars/infrastructure/avatar-query.repository';
 import { DeleteAvatarUseCase } from './features/avatars/application/use-cases/delete-avatar.use-case';
+import { PublicProfileController } from './features/profile/api/controllers/public.profile.controller';
+import { PublicProfileQueryRepository } from './features/profile/infrastructure/public.profile.query.repository';
+import { PublicPostController } from './features/post/api/controllers/public.post.controller';
+import { PublicPostQueryRepository } from './features/post/infrastructure/public.post.query.repository';
 
 const services = [GlobalConfigService, PrismaService];
 
-const validators = [UniqueLoginAndEmailValidator];
+const validators = [
+  UniqueLoginAndEmailValidator,
+  ValidConfirmOrRecoveryCodeValidator,
+];
 
 const useCases = [
+  CreatePostUseCase,
+  UpdatePostUseCase,
+  DeletePostUseCase,
   CreateProfileUseCase,
   UpdateProfileUseCase,
   RegistrationUseCase,
@@ -89,8 +105,18 @@ const repositories = [
   UsersQueryRepository,
   ProfileRepository,
   ProfileQueryRepository,
+  PostRepository,
+  PostQueryRepository,
   AvatarRepository,
   AvatarQueryRepository,
+  PublicProfileQueryRepository,
+  PublicPostQueryRepository,
+];
+
+const strategies = [
+  LocalAuthStrategy,
+  JwtAccessAuthStrategy,
+  JwtRefreshAuthStrategy,
 ];
 
 @Module({
@@ -108,7 +134,14 @@ const repositories = [
     }),
     ThrottlerModule.forRoot([{ ttl: 1000, limit: 10 }]),
   ],
-  controllers: [AuthController, ProfileController, AvatarController],
+  controllers: [
+    AuthController,
+    ProfileController,
+    PublicProfileController,
+    AvatarController,
+    PostController,
+    PublicPostController,
+  ],
   providers: [
     {
       provide: Services.FileService,
@@ -124,17 +157,14 @@ const repositories = [
         });
       },
     },
+    ...pipes,
     ...services,
-    ...validators,
     ...useCases,
+    ...validators,
+    ...strategies,
     ...repositories,
     EmailAdapter,
     EmailManager,
-    ...pipes,
-    ValidConfirmOrRecoveryCodeValidator,
-    LocalAuthStrategy,
-    JwtAccessAuthStrategy,
-    JwtRefreshAuthStrategy,
   ],
 })
 export class AppModule {}

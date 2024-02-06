@@ -20,12 +20,13 @@ export class CreateProfileUseCase
 
   async execute(command: CreateProfileCommand): Promise<ResultDTO<null>> {
     const user = await this.usersQueryRepository.findUser(command.userId);
+
     const data: Prisma.ProfileUncheckedCreateInput = {
       userId: user.payload.userId,
       userName: user.payload.login,
     };
-    //todo - какой тип нужен для создания профиля ProfileUncheckedCreateInput или ProfileCreateInput?
     const profileResult = await this.profileRepository.createProfile(data);
+
     if (profileResult.hasError()) {
       return new ResultDTO(InternalCode.Internal_Server);
     } else {

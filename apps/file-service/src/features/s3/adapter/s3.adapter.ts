@@ -1,10 +1,15 @@
 import {
   DeleteObjectCommand,
   PutObjectCommand,
-  PutObjectCommandOutput,
   S3Client,
 } from '@aws-sdk/client-s3';
 import { Injectable } from '@nestjs/common';
+import { v4 as uuid } from 'uuid';
+import { ResultDTO } from '../../../../../../libs/dtos/resultDTO';
+import { InternalCode } from '../../../../../../libs/enums';
+import { SavePostImageToS3Model } from '../api/models/save.post.image.to.s3.model';
+import { S3SaveOutputModel } from '../api/models/s3.save.output.model';
+import { SavaAvatarToS3Model } from '../api/models/save.avatar.to.s3.model';
 
 @Injectable()
 export class S3Adapter {
@@ -24,32 +29,28 @@ export class S3Adapter {
   }
 
   async saveAvatar(
-    userId: number,
-    buffer: Buffer,
-    mimetype: string,
-  ): Promise<{ key: string; data: PutObjectCommandOutput }> {
-    const key = `content/users/${userId}/avatars/${userId}_avatar.png`;
+    dto: SavaAvatarToS3Model,
+  ): Promise<ResultDTO<S3SaveOutputModel>> {
+    const key = `content/users/${dto.userId}/avatars/${uuid()}_avatar.png`;
 
     const bucketParams = {
       Bucket: 'inctagram1',
       Key: key,
-      Body: buffer,
-      ContentType: mimetype,
+      Body: dto.buffer,
+      ContentType: dto.mimetype,
     };
 
     const command = new PutObjectCommand(bucketParams);
 
     try {
       const uploadResult = await this.s3Client.send(command);
-      return { key, data: uploadResult };
+      return new ResultDTO(InternalCode.Success, { key, data: uploadResult });
     } catch (e) {
-      console.error(e);
+      return new ResultDTO(InternalCode.Internal_Server);
     }
   }
 
-  async deleteAvatar(userId: number): Promise<any> {
-    const key = `content/users/${userId}/avatars/${userId}_avatar.png`;
-
+  async deleteAvatar(key: string): Promise<ResultDTO<null>> {
     const bucketParams = {
       Bucket: 'inctagram1',
       Key: key,
@@ -58,9 +59,49 @@ export class S3Adapter {
     const command = new DeleteObjectCommand(bucketParams);
 
     try {
-      return await this.s3Client.send(command);
+      await this.s3Client.send(command);
+      return new ResultDTO(InternalCode.Success);
     } catch (e) {
-      console.error(e);
+      return new ResultDTO(InternalCode.Internal_Server);
+    }
+  }
+
+  async savePostImage(
+    dto: SavePostImageToS3Model,
+  ): Promise<ResultDTO<S3SaveOutputModel>> {
+    // todo - префикс для key должен храниться в .env в перемнных
+    const key = `content/users/${dto.userId}/posts/${dto.postId}/${uuid()}.png`;
+
+    const bucketParams = {
+      Bucket: 'inctagram1',
+      Key: key,
+      Body: dto.buffer,
+      ContentType: dto.mimetype,
+    };
+
+    const command = new PutObjectCommand(bucketParams);
+
+    try {
+      const saveResult = await this.s3Client.send(command);
+      return new ResultDTO(InternalCode.Success, { key, data: saveResult });
+    } catch (e) {
+      return new ResultDTO(InternalCode.Internal_Server);
+    }
+  }
+
+  async deletePostImage(key: string): Promise<ResultDTO<null>> {
+    const bucketParams = {
+      Bucket: 'inctagram1',
+      Key: key,
+    };
+
+    const command = new DeleteObjectCommand(bucketParams);
+
+    try {
+      await this.s3Client.send(command);
+      return new ResultDTO(InternalCode.Success);
+    } catch (e) {
+      return new ResultDTO(InternalCode.Internal_Server);
     }
   }
 }

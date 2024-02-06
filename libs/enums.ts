@@ -14,9 +14,15 @@ export enum EmailEvents {
 
 export enum ApproachType {
   http = 'selectHttpException',
+  tcp = 'selectTcpExceptions',
   qraphql = 'selectGraphQLExceptions',
 }
 
 export enum Services {
   FileService = 'FILE_SERVICE',
+}
+
+export enum SortDirection {
+  asc = 'asc',
+  desc = 'desc',
 }

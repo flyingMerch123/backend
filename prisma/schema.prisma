@@ -23,7 +23,9 @@ model User {
   passwordRecoveryInfo UserPasswordRecovery?
   Device               Device[]
   profile              Profile?
+  post                 Post[]
   Avatar               Avatar[]
+
 
   @@unique([id, login])
   @@map("users")
@@ -40,12 +42,12 @@ model UserEmailConfirmation {
 }
 
 model Avatar {
-  userId Int @id()
+  userId Int    @id()
   fileId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   key    String
 
-  @@unique([userId,fileId,key])
+  @@unique([userId, fileId, key])
   @@map("avatars")
 }
 
@@ -60,7 +62,7 @@ model UserPasswordRecovery {
 }
 
 model Device {
-  id         String   @id() @default(dbgenerated("uuid_generate_v4()")) @db.Uuid()
+  id         String   @default(dbgenerated("uuid_generate_v4()")) @db.Uuid() @id()
   ip         String
   deviceName String
   issuedAt   DateTime @db.Timestamp()
@@ -83,4 +85,26 @@ model Profile {
 
   @@unique([userId, userName])
   @@map("profile")
+}
+
+model Post {
+  id          String      @default(dbgenerated("uuid_generate_v4()")) @db.Uuid() @id()
+  description String?
+  createdAt   DateTime    @default(now()) @db.Timestamp()
+  image       PostImage[]
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      Int
+
+  @@map("post")
+}
+
+model PostImage {
+  post       Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId     String    @db.Uuid()
+  fileId     String    @id()
+  key        String
+  index      Int       @default(1)
+
+  @@unique([fileId, key])
+  @@map("post_image")
 }

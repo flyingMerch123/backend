@@ -1,4 +1,3 @@
-import { Express } from 'express';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { AvatarRepository } from '../../infrastructure/avatar.repository';
 import { ResultDTO } from '../../../../../../../libs/dtos/resultDTO';
@@ -20,20 +19,23 @@ export class SaveAvatarUseCase implements ICommandHandler<SaveAvatarCommand> {
   ) {}
 
   async execute(command: SaveAvatarCommand) {
-    const saveResult = await lastValueFrom(
-      this.client.send(
-        { cmd: 'save_avatar' },
-        { file: command.file, userId: command.userId },
-      ),
-    );
-    if (!saveResult) return new ResultDTO(InternalCode.Internal_Server);
+    try {
+      const saveResult = await lastValueFrom(
+        this.client.send(
+          { cmd: 'save_avatar' },
+          { file: command.file, userId: command.userId },
+        ),
+      );
 
-    const data: Prisma.AvatarUncheckedCreateInput = {
-      userId: command.userId,
-      fileId: saveResult.fileId,
-      key: saveResult.key,
-    };
+      const data: Prisma.AvatarUncheckedCreateInput = {
+        userId: command.userId,
+        fileId: saveResult.fileId,
+        key: saveResult.key,
+      };
 
-    return this.avatarRepository.createOrUpdateAvatar(data);
+      return this.avatarRepository.createOrUpdateAvatar(data);
+    } catch (e) {
+      return new ResultDTO(InternalCode.Internal_Server);
+    }
   }
 }

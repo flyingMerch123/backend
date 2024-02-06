@@ -28,7 +28,7 @@ export class RegistrationUseCase
     if (userResult.hasError())
       return new ResultDTO(InternalCode.Internal_Server);
 
-    // создание сущности profile
+    // todo: создание сущности profile перенести в репозиторий при создании юзера
     const profileResult = await this.commandBus.execute(
       new CreateProfileCommand(userResult.payload.userId),
     );

@@ -1,36 +1,41 @@
-# Check out https://hub.docker.com/_/node to select a new base image
+# образ на котором будет работать докер контейнер
 FROM node:18.15
+
 ARG port
 ARG service
 ENV SERVICE=$service
 ENV PORT=$port
-# Set to a non-root built-in user `node`
 
+# переключаемся на управление от пользователя node
 USER node
 
-# Create app directory (with user `node`)
+# создаем директорию для проекта
 RUN mkdir -p /home/node/dist/${SERVICE}
 
+# один раз уразываем путь до рабочей директории внутри контейнера
 WORKDIR /home/node/dist/${SERVICE}
 
-# Install app dependencies
-# A wildcard is used to ensure both package.json AND package-lock.json are copied
-# where available (npm@5+)
-
-
-
+# копируем эти файлы в контейнер для установки зависимостей проекта
 COPY --chown=node package*.json ./
 COPY --chown=node yarn.lock ./
 
+# устанавливаем зависимостей внутри контейнера (без блокировки изменения версий пакетов)
 RUN yarn install
 
-# Bundle app source code
+# копируем файлы проекта
 COPY --chown=node . .
 
+# запускаем сборку проекта
 RUN yarn build:${SERVICE}
 
-# Bind to all network interfaces so that it can be mapped to the host OS
-
+# информируем докер, что контейнер прослушивает PORT во время выполнения
 EXPOSE ${PORT}
 
+# указываем команду и аргументы для выполнения внутри контейнера
 CMD yarn 'start:inctagram-backend'
+
+
+# для локальной сборки =>
+# docker build . t inctagram-backend
+# порт вне контейнера : порт внутри контейнера
+# docker run -p 3003:3001 inctagram-backend

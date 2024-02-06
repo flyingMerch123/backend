@@ -21,10 +21,12 @@ export class DeleteAvatarUseCase
     const avatar = await this.s3Repository.findById(command.fileId);
     if (avatar.hasError()) return avatar as ResultDTO<null>;
 
-    await avatar.payload.deleteOne();
+    try {
+      await avatar.payload.deleteOne();
+    } catch (e) {
+      return new ResultDTO(InternalCode.Internal_Server);
+    }
 
-    await this.s3Adapter.deleteAvatar(avatar.payload.userId);
-
-    return new ResultDTO(InternalCode.Success);
+    return this.s3Adapter.deleteAvatar(avatar.payload.key);
   }
 }

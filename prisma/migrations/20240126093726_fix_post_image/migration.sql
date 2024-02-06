@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "post_image" ADD COLUMN     "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP;

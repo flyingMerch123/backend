@@ -7,19 +7,23 @@
   "license": "UNLICENSED",
   "scripts": {
     "build": "nest build",
-    "build:inctagram-backend": "nest build inctagram-backend",
-    "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
-    "start": "nest start inctagram-backend",
-    "start:inctagram-backend": "nest start inctagram-backend",
     "start:dev": "nest start --watch",
+    "start:prod": "node dist/apps/inctagram-backend/main",
+
+    "build:inctagram-backend": "nest build inctagram-backend",
+    "start:inctagram-backend": "nest start inctagram-backend",
     "start:dev:inctagram-backend": "nest start inctagram-backend  --watch",
     "start:debug:inctagram-backend": "nest start inctagram-backend  --debug --watch",
+
+    "build:file-service": "nest build file-service",
     "start:file-service": "nest start file-service",
     "start:dev:file-service": "nest start file-service  --watch",
     "start:debug:file-service": "nest start file-service  --debug --watch",
-    "start:prod": "node dist/apps/inctagram-backend/main",
+
+    "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
     "migrate": "yarn prisma migrate deploy",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",

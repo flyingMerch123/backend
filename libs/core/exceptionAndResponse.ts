@@ -6,6 +6,7 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
+import { RpcException } from '@nestjs/microservices';
 
 export class ExceptionAndResponseHelper {
   private readonly typeExceptionMethod: ApproachType;
@@ -18,8 +19,12 @@ export class ExceptionAndResponseHelper {
 
   sendExceptionOrResponse(dto: ResultDTO<any>) {
     if (dto.hasError()) {
-      const ExceptionClass = this[this.typeExceptionMethod](dto.code);
-      throw new ExceptionClass();
+      const ExceptionClass = this[this.typeExceptionMethod](
+        this.typeExceptionMethod === ApproachType.tcp ? undefined : dto.code,
+      );
+      throw new ExceptionClass(
+        this.typeExceptionMethod === ApproachType.tcp ? dto.code : undefined,
+      );
     }
     return dto.payload;
   }
@@ -35,5 +40,9 @@ export class ExceptionAndResponseHelper {
       case InternalCode.Forbidden:
         return ForbiddenException;
     }
+  }
+
+  [ApproachType.tcp]() {
+    return RpcException;
   }
 }

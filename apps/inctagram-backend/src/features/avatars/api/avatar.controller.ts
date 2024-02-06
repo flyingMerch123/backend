@@ -28,6 +28,7 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
+import { FileValidationPipe } from '../../infrastructure/pipes/file-validation.pipe';
 
 @ApiTags('Avatar')
 @Controller('avatar')
@@ -43,7 +44,9 @@ export class AvatarController extends ExceptionAndResponseHelper {
   @ApiBearerAuth()
   @Get()
   @UseGuards(JwtAccessAuthGuard)
-  async getAvatar(@CurrentUserId() userId: number): Promise<string> {
+  async getAvatar(
+    @CurrentUserId() userId: number,
+  ): Promise<{ avatarUrl: string }> {
     const avatarResult = await this.avatarRepository.findAvatar(userId);
 
     return this.sendExceptionOrResponse(avatarResult);
@@ -54,6 +57,7 @@ export class AvatarController extends ExceptionAndResponseHelper {
     description: 'Img is accepted.',
   })
   @ApiBearerAuth()
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Put('upload')
   @UseGuards(JwtAccessAuthGuard)
   @UseInterceptors(FileInterceptor('avatar'))
@@ -72,7 +76,7 @@ export class AvatarController extends ExceptionAndResponseHelper {
   })
   async uploadAvatar(
     @CurrentUserId() userId: number,
-    @UploadedFile()
+    @UploadedFile(new FileValidationPipe(10, ['png', 'jpeg', 'jpg']))
     file: Express.Multer.File,
   ): Promise<void> {
     const saveResult = await this.commandBus.execute(

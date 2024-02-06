@@ -26,7 +26,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
     const status = exception.getStatus();
     const exceptionResponse: any = exception.getResponse();
-
     if (
       status === HttpStatus.BAD_REQUEST &&
       Array.isArray(exceptionResponse.message)
@@ -37,10 +36,10 @@ export class HttpExceptionFilter implements ExceptionFilter {
           message: err.messages[0],
         };
       });
-
       response.status(status).json({ errorsMessages });
-    } else {
-      response.sendStatus(status);
+      return;
     }
+
+    response.sendStatus(status);
   }
 }

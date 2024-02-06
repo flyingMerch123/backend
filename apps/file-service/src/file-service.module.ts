@@ -9,8 +9,15 @@ import { S3Repository } from './features/s3/infrastructure/s3.repository';
 import { DeleteAvatarUseCase } from './features/s3/application/use-cases/delete-avatar.use-case';
 import { configModule } from '../config/config.module';
 import { GlobalConfigService } from '../config/config.service';
+import { SavePostImagesUseCase } from './features/s3/application/use-cases/save-post-images.use-case';
+import { DeletePostImagesUseCase } from './features/s3/application/use-cases/delete-post-images.use-case';
 
-const useCases = [SaveAvatarUseCase];
+const useCases = [
+  SaveAvatarUseCase,
+  DeleteAvatarUseCase,
+  SavePostImagesUseCase,
+  DeletePostImagesUseCase,
+];
 
 @Module({
   imports: [
@@ -25,12 +32,6 @@ const useCases = [SaveAvatarUseCase];
     ]),
   ],
   controllers: [S3Controller],
-  providers: [
-    ...useCases,
-    GlobalConfigService,
-    S3Adapter,
-    S3Repository,
-    DeleteAvatarUseCase,
-  ],
+  providers: [...useCases, GlobalConfigService, S3Adapter, S3Repository],
 })
 export class FileServiceModule {}
